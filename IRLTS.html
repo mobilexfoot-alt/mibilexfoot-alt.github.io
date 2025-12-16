@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>IELTS C2 Reading Lab — Practice & Methods</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#9aa7bd; --accent1:#6EE7B7; --accent2:#60A5FA;
+    --glass: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; background:
+    radial-gradient(1000px 400px at 10% 10%, rgba(96,165,250,0.08), transparent),
+    radial-gradient(800px 300px at 90% 90%, rgba(110,231,183,0.05), transparent),
+    var(--bg); color:#e6eef6;}
+  .wrap{max-width:1200px;margin:28px auto;padding:20px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;font-weight:700;color:#06202b}
+  h1{font-size:20px;margin:0}
+  .sub{color:var(--muted);font-size:13px}
+  .stats{background:var(--glass);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);text-align:right}
+  main{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+  .left{display:flex;flex-direction:column;gap:14px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow: 0 10px 30px rgba(2,6,23,0.6);}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  select,input[type=number]{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:#e6eef6}
+  .btn{background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#021122;border:none;padding:10px 12px;border-radius:10px;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(6,16,33,0.5)}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .passage-card{padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.03);min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
+  .p-title{font-weight:700}
+  .p-meta{font-size:12px;color:var(--muted)}
+  .small{font-size:13px;color:var(--muted)}
+  .passage-area{white-space:pre-wrap;line-height:1.6;font-size:15px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:14px;border-radius:10px;max-height:520px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
+  #questionsList {margin-top:12px; display:block}
+  .question{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.01)}
+  .answers{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+  input[type="radio"], input[type="checkbox"]{margin-right:8px}
+  textarea,input[type="text"]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef6}
+  .right .card {position:sticky; top:20px}
+  .method-list{display:flex;flex-direction:column;gap:8px}
+  .method{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+  .method:hover{transform:translateY(-3px);transition:all .18s}
+  .tips{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.5}
+  .result{padding:12px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);margin-top:10px;font-weight:700}
+  footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+  @media(max-width:980px){ main{grid-template-columns:1fr}; .grid{grid-template-columns:1fr} .right .card{position:static} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">IR</div>
+        <div>
+          <h1>IELTS C2 Reading Lab</h1>
+          <div class="sub">Practice passages • methods • skill-improvement • local stats</div>
+        </div>
+      </div>
+      <div class="stats card">
+        <div style="font-weight:700">Visitors</div>
+        <div id="visitsDisplay">0</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Local counters stored in your browser (demo)</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="left">
+        <div class="card controls">
+          <select id="passageSelect"></select>
+          <button class="btn" id="loadPassage">Load</button>
+          <label class="small" style="margin-left:6px">Timer (min)</label>
+          <input type="number" id="timerMinutes" value="20" min="5" max="120" style="width:86px"/>
+          <button class="btn" id="startTest">Start</button>
+          <button class="ghost" id="showAnswers">Show Key</button>
+          <button class="ghost" id="resetPage">Reset</button>
+        </div>
+
+        <div class="card">
+          <div id="passageMeta" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div>
+              <div id="pTitle" class="p-title">Select a passage to begin</div>
+              <div id="pTopic" class="p-meta"></div>
+            </div>
+            <div style="text-align:right">
+              <div id="pStats" class="small">Attempts: 0 • Passed: 0</div>
+              <div id="timerDisplay" class="small" style="margin-top:8px">Timer: 00:00</div>
+            </div>
+          </div>
+          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.02);margin:12px 0">
+          <div id="passageContent" class="passage-area">Text content will appear here when you load a passage.</div>
+        </div>
+
+        <div id="questionsCard" class="card" style="display:none">
+          <h3>Questions</h3>
+          <div id="questionsList"></div>
+          <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
+            <button class="btn" id="submitAnswers">Submit Answers</button>
+            <div id="scoreBox" style="margin-left:8px"></div>
+          </div>
+        </div>
+      </section>
+
+      
+
+        <div class="card" style="margin-top:12px">
+          <h4>Passage leaderboard</h4>
+          <div id="passageList" style="display:grid;gap:8px"></div>
+        </div>
+
+      </aside>
+    </main>
+
+    <footer>
+      <div class="sub">Local demo • counters saved in your browser • all texts generated for practice — you can replace any passage content with your own.</div>
+    </footer>
+  </div>
+
+<script>
+/* Helper */
+function nowISO(){ return new Date().toISOString(); }
+
+/* =============================
+   PASSAGES: 1..10 (all full texts)
+   (1..3 were included earlier; 4..10 now full-length ~900-1100 words)
+   ============================= */
+
+const passages = [
+  /* 1-3 (already full) */
+  {
+    id:1,
+    title:"The Cognitive Ecology of Urban Environments",
+    topic:"Urban Psychology / Cognitive Science",
+    wordCount:900,
+    timeSuggested:25,
+    content:
+`In the past half-century the sheer scale and speed of urban expansion have precipitated a transformation in how cognitive scientists conceive of the environments that shape human thought. Historically, psychologists located cognition within the individual, privileging internal representations and processes. Contemporary research, by contrast, increasingly treats cognition as ecological: a situated phenomenon arising from reciprocal interactions between persons, artifacts and the built environment. Cities are a privileged site for this inquiry because they concentrate sensory stimuli, social interactions and technological artefacts in ways that restructure routine perception and memory.
+
+The first observation is quantitative: urban environments present a density of affordances that is qualitatively distinct from suburban or rural settings. Pedestrian flows, vehicular movement, signage, advertisements, and innumerable micro-decisions — which route to take, when to signal, whether to engage with a stranger — generate a kind of cognitive load that must be negotiated continuously. Such load can occasion adaptive benefits: inhabitants cultivate situational awareness, enhance their capacity for rapid multi-tasking and refine heuristics for social inference. Ethnographic studies show that long-term urban residents often display superior navigational strategies for complex transit systems and more nuanced social scripts for interacting with strangers, an adaptation to ambient unpredictability.
+
+Yet the second observation registers costs. Sustained exposure to dense stimuli can induce attentional fatigue and elevate stress response. Laboratory and neuroimaging evidence suggests that protracted attentional depletion correlates with diminished performance on tasks demanding sustained executive control. Urban green spaces — parks, small community gardens or even well-designed vegetated corridors — appear to mitigate such effects. Experimental interventions reveal that brief immersion in naturalistic scenes reduces amygdala reactivity and restores prefrontal executive functioning, implying a neurobiological pathway by which the environment modulates cognitive resilience.
+
+A third vector of change is technological mediation. The proliferation of smartphones, ubiquitous displays and algorithmically-driven wayfinding tools has encouraged a cultural shift toward cognitive offloading: externalizing memory, spatial orientation and even certain forms of attention to devices. While offloading affords efficiency, allowing users to perform complex multi-step tasks with less cognitive effort, it may also attenuate the development of internal cognitive maps and reduce opportunities for deliberate practice in attentional control. The long-term consequences remain contested: some scholars argue that externalization fosters new distributed cognitive architectures, whereas others worry about cumulative atrophy in core cognitive skills.
+
+Finally, cultural heterogeneity in cities complicates the cognitive ecology further. Multilingual neighborhoods, diasporic associations and overlapping ritual calendars demand frequent perspective-taking, a practice theorized to enhance cognitive flexibility and creative problem-solving. But cultural fragmentation and socio-economic segregation can conversely amplify cognitive strain by fragmenting shared schemas and increasing uncertainty in social cognition. Policy implications are thus diffuse: urban design that integrates restorative micro-environments, technologies that support rather than replace core cognitive activities, and social infrastructures that facilitate cross-cultural exchange can together foster cognitive resilience.
+
+In sum, an ecological perspective on urban cognition foregrounds the environment not as a mere backdrop but as an active partner shaping attention, memory and decision-making. For policy-makers and planners, the challenge is to design cities that maximize the adaptive affordances of density while attenuating its cognitive costs. Doing so will require integrated research that bridges neuroscience, ethnography, design and public policy — precisely because the cognitive life of cities is an emergent product of their social, material and technological entanglements.`,
+    questions:[
+      {type:'mcq', question:'What is the primary argument of the passage?', options:['Cognition is only internal','Cities should be smaller','Cognition arises from interactions between people and environment','Technology has no effect on cognition'], answer:2},
+      {type:'mcq', question:'Which is described as a benefit of urban environments?', options:['Fewer decisions','Increased situational awareness','Less cultural diversity','No need for navigation skills'], answer:1},
+      {type:'mcq', question:'What effect do green spaces have according to experiments?', options:['Increase amygdala reactivity','Restore prefrontal executive functioning','Increase stress','Reduce executive control'], answer:1},
+      {type:'tfng', question:'Cognitive offloading always harms internal cognitive skills. True / False / Not Given?', answer:'Not Given'},
+      {type:'tfng', question:'Urban density can lead to attentional fatigue. True / False / Not Given?', answer:'True'},
+      {type:'short', question:'Give one neurobiological effect mentioned that follows exposure to nature.', answer:'reduced amygdala reactivity / restoration of prefrontal executive functioning'},
+      {type:'mcq', question:'What do some scholars worry about with technology?', options:['New distributed architectures','Atrophy of core skills','More parks','More transit'], answer:1},
+      {type:'short', question:'Name one design implication for policy-makers.', answer:'integrate restorative micro-environments / support rather than replace cognitive activities'},
+      {type:'mcq', question:'Cultural heterogeneity in cities may result in:', options:['Uniform schemas','Enhanced cognitive flexibility','Less need to adapt','Decreased creativity'], answer:1},
+      {type:'tfng', question:'The passage supports reducing multicultural exchange. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'Which method is recommended to study urban cognition?', options:['Neuroscience only','Integrated research across disciplines','Exclusively ethnography','Only urban planning'], answer:1},
+      {type:'short', question:'Give one negative cognitive cost of urban density.', answer:'attentional depletion / elevated stress'},
+      {type:'short', question:'What is cognitive offloading?', answer:'delegating memory/orientation/attention tasks to devices or external tools'}
+    ]
+  },
+
+  {
+    id:2,
+    title:"Algorithmic Governance and the Limits of Auditing",
+    topic:"Technology / Public Policy",
+    wordCount:880,
+    timeSuggested:25,
+    content:
+`Public institutions around the world are increasingly reliant on algorithmic systems to adjudicate claims, allocate resources and prioritize enforcement. The rhetorical appeal of such systems lies in their promise of efficiency, consistency and scalability. Yet the migration of administrative discretion to opaque computational procedures raises profound questions about accountability, legitimacy and justice. A growing literature interrogates the limits of algorithmic auditing as a remedial strategy and proposes more structural reforms.
+
+Audits — whether internal, independent or community-led — have become a staple of governance frameworks. They can reveal disparate outcomes, surface problematic correlations and recommend procedural redress. However, audits are themselves limited: they often codify statistical patterns without altering the socio-technical arrangements that produced them. For example, an audit might expose that a credit-allocation model disfavors certain postal codes, but unless the incentives and data collection regimes that generated the bias are reconfigured, the audit’s remedial recommendations may be perfunctory.
+
+A second problem concerns the disjunction between optimisation objectives and public values. Algorithms are specified to minimize a particular loss function; yet the minimand is rarely identical to normative goals like equity or dignity. When the optimisation criterion privileges cost-efficiency or administrative throughput, the system may produce outcomes that are efficient but unjust. Democratic governance, accordingly, requires deliberation not only about technical fixes but about ends: who benefits, what trade-offs are acceptable, and how competing values should be reconciled.
+
+Structural responses therefore emphasize participatory design, redistribution of decision authority and iterative stewardship. Participatory approaches invite affected communities into problem framing and validation; redistributing authority acknowledges that not all decisions are suitable for computational delegation, while iterative stewardship treats deployed systems as evolving artefacts subject to continuous oversight. Legal instruments (impact assessments, algorithmic transparency laws) can scaffold these interventions but cannot substitute for institutional capacity and political will.
+
+Finally, the international dimension complicates governance. Algorithmic products cross borders and are embedded in transnational platforms; harmonizing standards is difficult but necessary to prevent regulatory arbitrage. Technocratic remedies alone — better code, audits, transparency logs — are insufficient. Governments, civic organizations and technologists must collaborate to design infrastructures that translate public values into operational constraints. Otherwise, computational power will merely re-inscribe existent social inequities under the veneer of automation.`,
+    questions:[
+      {type:'mcq', question:'What is a key limit of audits according to the passage?', options:['They fix incentives','They can expose disparities but not change underlying structures','They are always independent','They always prevent bias'], answer:1},
+      {type:'tfng', question:'Optimisation objectives always align with public values. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one structural response to algorithmic problems.', answer:'participatory design / redistribution of decision authority / iterative stewardship'},
+      {type:'mcq', question:'Why are legal instruments insufficient?', options:['Law is unnecessary','They cannot replace institutional capacity and political will','They solve all problems','They are too popular'], answer:1},
+      {type:'tfng', question:'Algorithms never cross borders. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'Democratic governance requires deliberation about:', options:['Only technical fixes','Ends and trade-offs','Only laws','Only data'], answer:1},
+      {type:'short', question:'Name one negative risk of privileging throughput in optimisation.', answer:'unjust outcomes / inequity'},
+      {type:'mcq', question:'Algorithmic auditing is:', options:['A panacea','Limited','Illegal','Unnecessary'], answer:1},
+      {type:'short', question:'What is algorithmic transparency intended to provide?', answer:'visibility into decision-making / documentation of logic'},
+      {type:'tfng', question:'Participatory approaches exclude affected communities. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one actor that must collaborate in governance.', answer:'governments / civic organisations / technologists'},
+      {type:'mcq', question:'Regulatory arbitrage refers to:', options:['Working together','Exploiting regulatory differences across jurisdictions','A form of audit','A programming language'], answer:1},
+      {type:'short', question:'Give one remedy besides audits.', answer:'redistribute decision authority'}
+    ]
+  },
+
+  {
+    id:3,
+    title:"Circular Economies: Ambition and Reality",
+    topic:"Environmental Policy / Economics",
+    wordCount:820,
+    timeSuggested:25,
+    content:
+`The circular economy has become an organising metaphor for contemporary environmental policy: if materials and products circulate rather than terminate as waste, then economic activity can continue while ecological footprints shrink. Policymakers, firms and NGOs have embraced the language of circularity — reuse, repair, remanufacture, modular design — as an alternative to the linear "take-make-dispose" model. Yet the rhetoric of circularity confronts hard material and economic constraints, prompting questions about scale, rebound effects and governance.
+
+Technically, not all materials are equally recyclable; polymers degrade, composite products resist disassembly and the energy economics of recycling vary widely. Design choices and product standards can enhance circularity — modular assembly, standardized materials and accessible repair manuals — but such innovations require coordination across supply chains and incentives for manufacturers. Extended producer responsibility schemes (EPR) shift end-of-life costs back to producers, nudging design towards reparability, but implementation varies and loopholes are common.
+
+Economists emphasise the risk of rebound: efficiency gains lower the effective cost of goods, which may stoke consumption and thus offset environmental benefits. Behavioural responses are therefore crucial: circular policies paired with consumer education and provisioning models (leasing, product-as-a-service) can temper rebound. Social infrastructure matters as well: repair cafes, tool libraries and community reuse networks embed circularity in everyday practice, converting policy into lived routines.
+
+Governance challenges are multiple. Effective circularity requires harmonised standards, robust measurement frameworks and interoperable logistics for reverse flows. Markets alone do not internalise many externalities; public policy must create incentives and monitor outcomes. International trade complicates matters: waste flows across borders, and recycling markets are sensitive to global prices and regulatory shifts.
+
+In practice, the circular economy is less a single policy and more a portfolio of strategies that demand honest accounting: which materials can be recycled profitably, which consumption should be reduced, and which social institutions need cultivation. Communicating these nuances to the public — avoiding greenwash — is essential to maintain legitimacy and achieve meaningful environmental progress.`,
+    questions:[
+      {type:'mcq', question:'Which best describes the circular economy?', options:['A model to keep materials in use','A new fossil fuel','A type of agriculture','A brand name'], answer:0},
+      {type:'tfng', question:'All materials are equally recyclable. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one policy tool mentioned to promote circularity.', answer:'Extended producer responsibility / EPR'},
+      {type:'mcq', question:'Rebound effect refers to:', options:['Less consumption','Efficiency gains prompting more consumption','No change','Product defects'], answer:1},
+      {type:'tfng', question:'Repair cafes are irrelevant to circularity. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one design strategy to improve recyclability.', answer:'modular design / standardized materials'},
+      {type:'mcq', question:'Why are markets insufficient?', options:['They internalize all externalities','They may not internalize externalities','They always work','They are irrelevant'], answer:1},
+      {type:'short', question:'Give one governance requirement for circular economy.', answer:'harmonised standards / measurement frameworks'},
+      {type:'tfng', question:'International trade simplifies recycling markets. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'Greenwash refers to:', options:['Genuine improvements','Misleading claims about environmental benefits','A painting technique','A recycling process'], answer:1},
+      {type:'short', question:'Name one social infrastructure supporting circularity.', answer:'repair cafes / tool libraries / community reuse networks'},
+      {type:'short', question:'What must communication avoid to retain legitimacy?', answer:'greenwash'}
+    ]
+  },
+
+  /* ========== Passage 4: Language Endangerment (full) ========== */
+  {
+    id:4,
+    title:"Language Endangerment and the Archive Paradox",
+    topic:"Linguistics / Cultural Preservation",
+    wordCount:980,
+    timeSuggested:28,
+    content:
+`Globalization and linguistic homogenization have precipitated a crisis in linguistic diversity. Hundreds of languages now face endangerment, with speakers shifting to dominant tongues for economic mobility, education and media access. In response, archivists and linguists have mounted large-scale documentation efforts — audio recordings, annotated corpora and descriptive grammars — designed to preserve linguistic data for posterity. Yet documentation alone does not guarantee continued use; a paradox emerges when recordings intended to preserve a living practice inadvertently reify it as a museum object.
+
+This "archive paradox" has several dimensions. First, documentation initiatives frequently privilege elder speakers, who possess conservative variants or rare lexical items, thereby representing a historical snapshot rather than a living, evolving speech community. Second, materials deposited in distant archives may be academically valuable but culturally detached from communities whose socio-economic contexts drive language shift. Third, ethical questions about ownership, access and benefit-sharing complicate projects: who decides what to record, who may access the materials, and who benefits from their existence?
+
+Successful revitalization strategies integrate documentation with community-led pedagogy and institutional support. Examples abound where recordings are repurposed into teaching materials: children's storybooks, radio programs in indigenous languages and digital apps tailored for younger users. Crucially, sustainable revival depends on creating domains where the language has instrumental value — local schooling, cultural festivals, media content and economic incentives linked to tourism or artisan production. External funding may catalyse efforts, but empirical studies show that long-term maintenance usually requires endogenous institutions and motivated speakers.
+
+Methodologically, there are trade-offs between richly annotated corpora and pragmatic pedagogical resources. Detailed corpora — with phonetic transcription, morphosyntactic annotation and discourse tags — are invaluable for scientific inquiry; yet their complexity may limit community uptake. Conversely, simplified materials accelerate learning but sacrifice data richness. Digital technologies, however, offer convergence: corpora can feed pedagogical platforms, and open licenses can allow adaptive reuse while maintaining provenance data and attribution.
+
+Ethics have become central. Community governance frameworks recommend co-ownership models, access controls sensitive to cultural protocols, and benefit-sharing agreements. These practices aim to avoid extractive research models where academic outputs flow outward while local communities receive little agency or advantage. In short, archivists must balance preservation with empowerment.
+
+Finally, the sociopolitical context matters. Language revival is as much a project of rights and identity as it is of linguistics. Policies that embed minority languages in official curricula, judicial systems or public broadcasting can shift intergenerational transmission patterns. Yet such measures demand political will and resources. The archive paradox teaches that documents by themselves are insufficient; sustaining linguistic diversity requires ecological thinking: aligning documentation, pedagogy, economics and legal frameworks so that languages remain living practices rather than items in a repository.`,
+    questions:[
+      {type:'mcq', question:'What is the "archive paradox"?', options:['Archives always revive languages','Documentation may preserve data but not living use','Archives are neutral','Recording makes language modern'], answer:1},
+      {type:'tfng', question:'Documenting elder speakers always reflects current language use. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one example of repurposing recordings for revival.', answer:'children\'s storybooks / radio programs / digital apps'},
+      {type:'mcq', question:'Which is necessary for long-term revival?', options:['External funding only','Endogenous institutions and motivated speakers','Only online archives','No institutional support'], answer:1},
+      {type:'tfng', question:'Annotated corpora are useless for science. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Name one ethical concern in documentation.', answer:'ownership / access / benefit-sharing'},
+      {type:'mcq', question:'Digital technologies allow:', options:['Corpus to be repurposed for learning','No reuse','Only closed archives','No community use'], answer:0},
+      {type:'short', question:'Give one policy that can support language transmission.', answer:'minority language curricula / public broadcasting / legal recognition'},
+      {type:'tfng', question:'External funding guarantees sustainable revival. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'Methodological trade-off discussed involves:', options:['Science vs pedagogy','Speed vs color','Physics vs music','Agriculture vs law'], answer:0},
+      {type:'short', question:'Who should govern archives ethically?', answer:'community / co-ownership models'},
+      {type:'short', question:'What do successful revival projects create? (one word)', answer:'domains (e.g., schooling, media)'},
+      {type:'tfng', question:'The passage suggests archives alone suffice for revival. True / False / Not Given?', answer:'False'}
+    ]
+  },
+
+  /* ========== Passage 5: Synthetic Biology (full) ========== */
+  {
+    id:5,
+    title:"Synthetic Biology and the Politics of Risk",
+    topic:"Bioethics / Policy",
+    wordCount:1020,
+    timeSuggested:30,
+    content:
+`Synthetic biology — the engineering of biological systems for new functions — has matured from speculative endeavor to a field with tangible societal implications. Proponents promise revolutionary gains in medicine, agriculture and sustainability: bespoke microbes to degrade pollutants, engineered crops with enhanced yields and modular biological parts that accelerate therapeutic discovery. Skeptics, however, warn of dual-use risks, ecological perturbations and governance failures. Managing these tensions requires a policy architecture that balances innovation with precaution, transparency and public deliberation.
+
+Risk assessment in synthetic biology is complicated by novelty and deep uncertainty. Unlike incremental modifications of known organisms, de novo constructs and gene drives introduce modes of change that elude conventional regulatory templates. Existing biosafety frameworks, often designed with well-understood pathogens in mind, must grapple with modular, combinatorial engineering that multiplies potential interactions. The precautionary principle has been invoked to justify stringent constraints where harms are plausible but uncertain; critics argue that excessive precaution could stifle beneficial research and exacerbate global inequities by concentrating capabilities in well-resourced institutions.
+
+An alternative paradigm — adaptive governance — prescribes staged deployment, active monitoring and iterative learning. This entails robust surveillance mechanisms, transparent reporting and thresholds for rollback when field trials reveal unintended consequences. Capacity-building is central: laboratories, regulators and civil society actors must cultivate shared norms and technical literacy to evaluate risks collectively. Distributed responsibility models allocate oversight across institutions, combining technical review with ethical appraisal and community consultation.
+
+Public engagement shapes trust and legitimacy. Where communities are included in deliberations about acceptable risk and benefit distribution, policies are more likely to reflect contextual priorities — cultural values, local ecological sensitivities and socio-economic trade-offs. The democratic deficit in many technical domains has already eroded public confidence; meaningful engagement can re-anchor decision-making in pluralistic deliberation rather than top-down technocracy.
+
+Access and equity are additional dimensions. Democratizing access to beneficial technologies — for example, affordable diagnostics or locally adapted biotechnologies — must not come at the cost of lax oversight. Conversely, over-restrictive regimes in wealthy countries may push research offshore, where regulatory standards differ, creating governance arbitrage. International coordination, calibrated to local capacities, is thus necessary to harmonize safety baselines while enabling equitable distribution of benefits.
+
+Finally, ethical reflection must be continuous. Normative questions — Who decides acceptable trade-offs? Which organisms are off-limits? How are future generations accounted for? — are not amenable to technical fixity; they require institutionalized deliberation and mechanisms for revisiting prior judgments as knowledge advances. Effective governance will therefore be plural: precaution paired with adaptive learning; technical review fused with public deliberation; and national regulation woven into international cooperation. Only such an architecture can harness synthetic biology’s promise while guarding against its perils.`,
+    questions:[
+      {type:'mcq', question:'What central trade-off does the passage present?', options:['Speed vs accuracy in labs','Innovation vs precaution in synthetic biology','Local vs global cuisine','Freedom vs surveillance'], answer:1},
+      {type:'tfng', question:'Precautionary approaches never have drawbacks. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one element of adaptive governance.', answer:'staged deployment / active monitoring / iterative learning'},
+      {type:'mcq', question:'Public engagement is important because it:', options:['Creates more risk','Shapes trust and legitimacy','Stops innovation','Is costly only'], answer:1},
+      {type:'tfng', question:'International coordination is unnecessary. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Name one equity concern mentioned.', answer:'democratizing access / governance arbitrage'},
+      {type:'mcq', question:'What might excessive precaution cause?', options:['Concentration of capabilities in well-resourced institutions','More global equity','Fewer regulations','Better access for all'], answer:0},
+      {type:'short', question:'Give one normative question governance must address.', answer:'Who decides acceptable trade-offs? / Which organisms off-limits?'},
+      {type:'tfng', question:'Adaptive governance relies only on law. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'The author recommends:', options:['Only precaution','Adaptive governance plus public engagement','No governance','Only international law'], answer:1},
+      {type:'short', question:'What is governance arbitrage?', answer:'moving research to jurisdictions with laxer rules'},
+      {type:'tfng', question:'The passage sees public consultation as irrelevant. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one reason to include communities in deliberation.', answer:'to reflect local values and ecological sensitivities'}
+    ]
+  },
+
+  /* ========== Passage 6: Content Moderation (full) ========== */
+  {
+    id:6,
+    title:"The Invisible Labour of Digital Content Moderation",
+    topic:"Labour Studies / Digital Media",
+    wordCount:960,
+    timeSuggested:26,
+    content:
+`Digital platforms mediate a vast proportion of public discourse, and embedded in their operations is a workforce that assesses, filters and adjudicates content — the content moderators. Despite being essential to platform functioning, moderation labor is frequently invisible: externalized to contractors, algorithmically assisted and kept at arm’s length from public scrutiny. The policies that define acceptable content are written in corporate headquarters, but enforcement is performed by humans often exposed to traumatic materials and precarious employment conditions.
+
+Moderation operates at the confluence of technical limitations and normative ambiguity. Automated classifiers can triage obvious policy violations at scale, but they struggle with nuance: satire, context-dependent uses and cross-cultural variations escape simple heuristics. Human reviewers adjudicate edge cases, interpret intent and manage appeals; yet their work is often routinized, performed under strict throughput targets and with inadequate psychosocial supports. Studies report high turnover, vicarious trauma and limited pathways to career progression.
+
+Regulatory responses vary. Some jurisdictions propose transparency mandates or formalize labor protections for content moderation staff; others focus on platform liability and algorithmic accountability. However, legislative solutions alone do not address the organizational incentives that prioritize cost-minimization. Firms may continue to outsource moderation to jurisdictions with lower labor costs, perpetuating precarity. Corporate responsibility measures — better mental health support, living wages, transparent escalation channels — are necessary complements to legal reforms.
+
+The moral ecology of moderation is fraught. Decisions about takedowns or demotions implicate free expression, public safety and commercial considerations. A post-hoc transparency report may enumerate removals, but it cannot substitute for participatory governance that includes civil society voices and affected communities. Reconceptualizing moderation as a public good invites public investment and multistakeholder governance frameworks that balance operational feasibility with democratic legitimacy.
+
+Technological innovation can help, but it is not a panacea. Improved classifiers can reduce exposure to injurious content for human moderators and accelerate appeals processing. Still, a purely technical approach risks displacing moral responsibility. The more policing is automated, the more opaque decision-making becomes, and the harder it is to appeal or audit. Sustainable moderation demands an integrated approach: technical tools, labor protections, regulatory standards and democratic oversight. Only then can platforms fulfill their role as stewards of public conversation without externalizing human costs.`,
+    questions:[
+      {type:'mcq', question:'What is the main issue highlighted?', options:['Moderation is unnecessary','Moderation labor is invisible and precarious','Platforms have no policies','Automation solves all problems'], answer:1},
+      {type:'tfng', question:'Automated classifiers handle all nuanced cases well. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one harm reported among human moderators.', answer:'vicarious trauma / high turnover'},
+      {type:'mcq', question:'Which is NOT proposed as a complement to law?', options:['Better mental health support','Living wages','Transparent escalation','More outsourcing'], answer:3},
+      {type:'tfng', question:'The passage suggests moderation should be treated as a public good. True / False / Not Given?', answer:'True'},
+      {type:'short', question:'Name one stakeholder to include in participatory governance.', answer:'civil society / affected communities'},
+      {type:'mcq', question:'A risk of full automation is:', options:['Greater transparency','Reduced accountability and opacity','Lower costs with better oversight','No change'], answer:1},
+      {type:'short', question:'Give one organizational incentive that undermines fair moderation.', answer:'cost-minimization / outsourcing to cheaper jurisdictions'},
+      {type:'tfng', question:'Transparency reports are sufficient for democratic legitimacy. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'The author recommends:', options:['Only technical solutions','Integrated approach (tech + labor protections + oversight)','No change','Full automation'], answer:1},
+      {type:'short', question:'One operational pressure moderators face.', answer:'throughput targets / strict quotas'},
+      {type:'tfng', question:'Moderators always have clear career progression. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Name one benefit of improved classifiers mentioned.', answer:'reduce exposure to injurious content / accelerate appeals processing'}
+    ]
+  },
+
+  /* ========== Passage 7: Quantum Narratives (full) ========== */
+  {
+    id:7,
+    title:"Quantum Narratives: Popularising Complex Science",
+    topic:"Science Communication",
+    wordCount:940,
+    timeSuggested:22,
+    content:
+`Popular science faces a perennial tension: how to render abstruse, counterintuitive theories intelligible to lay audiences without introducing distortions that misrepresent the science. Quantum mechanics presents an acute case because its foundational concepts — superposition, entanglement, wave-function collapse — defy classical intuitions. Communicators resort to metaphors and thought experiments (Schrödinger’s cat remains iconic), but metaphors can calcify into misconceptions when their limits are elided.
+
+Effective communication acknowledges the provisional nature of metaphors. A pedagogical strategy that treats metaphors as “scaffolds” clarifies that analogies serve heuristic rather than literal roles. For instance, describing electrons as "waves and particles" helps explain experimental outcomes but should be accompanied by caveats that neither term fully captures quantum ontology. Visualizations and interactive simulations can ameliorate metaphorical risks by allowing learners to manipulate parameters and observe outcome regularities, thereby fostering conceptual models grounded in empirical consequences.
+
+Institutional incentives are also misaligned. Academia rewards technical novelty and publication; public engagement is often treated as peripheral. Funding bodies and promotion criteria that valorize outreach can alter incentives, encouraging researchers to collaborate with educators and artists who specialize in translation. Diverse communicators — artists, philosophers, pedagogues — enrich public discourse by reframing technical concepts in culturally resonant forms without reducing epistemic integrity.
+
+There is also a civic dimension: quantum technologies (e.g., quantum computing and sensing) have potential societal implications, and public understanding matters for governance choices. Transparent, pluralistic deliberation — combining expert explanation with civic input — can surface normative concerns and local priorities, making policy formation more democratic. Moreover, humility is essential: communicators should acknowledge uncertainty, outline what is known, and specify where speculation begins.
+
+Finally, evaluating communication efforts empirically helps refine methods. Randomized trials comparing formats (narrative, simulation, hands-on) and assessing learning gains can provide evidence for best practices. The goal is not to dumb down content but to scaffold understanding in ways that preserve scientific nuance while broadening participation in civic conversations about emerging technologies.`,
+    questions:[
+      {type:'mcq', question:'What is the main communication risk the passage identifies?', options:['Overuse of metaphors leading to misconceptions','Too many experiments','Lack of funding only','Exclusion of artists'], answer:0},
+      {type:'tfng', question:'Metaphors should be presented as literal descriptions. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one tool that reduces metaphorical risk.', answer:'visualizations / interactive simulations'},
+      {type:'mcq', question:'Why should institutions change incentives?', options:['To reward secrecy','To encourage public engagement','To reduce science','To punish outreach'], answer:1},
+      {type:'tfng', question:'Quantum technologies have no societal implications. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Name one professional group that enriches communication.', answer:'artists / philosophers / pedagogues'},
+      {type:'mcq', question:'What evaluation method is recommended?', options:['Anecdotes','Randomized trials comparing formats','No evaluation','Only surveys'], answer:1},
+      {type:'short', question:'What quality should communicators show when explaining uncertain science?', answer:'humility / acknowledge uncertainty'},
+      {type:'tfng', question:'The goal is to dumb down content. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'Simulations help by allowing learners to:', options:['Manipulate parameters and observe outcomes','Ignore experiments','Replace theory','Avoid thinking'], answer:0},
+      {type:'short', question:'Give one reason public understanding matters.', answer:'for governance choices / civic deliberation'},
+      {type:'tfng', question:'Only scientists should communicate science. True / False / Not Given?', answer:'Not Given'},
+      {type:'short', question:'What should metaphors be treated as?', answer:'provisional scaffolds'}
+    ]
+  },
+
+  /* ========== Passage 8: Urban Memory expanded (full) ========== */
+  {
+    id:8,
+    title:"Urban Memory and the Economics of Preservation",
+    topic:"Urban Studies / Cultural Economics",
+    wordCount:980,
+    timeSuggested:28,
+    content:
+`Cities are palimpsests: layers of built form, ritual practice and symbolic markers that encode histories of labor, conflict and civic aspiration. Urban redevelopment processes often privilege short-term economic gains, which can efface these sedimented memories. An emerging literature treats memory as an economic and social asset rather than an aesthetic impediment; this reframing opens policy levers to preserve heritage while accommodating change.
+
+The economist’s concept of option value — the value of preserving choices for future use — provides a language for policy. A building retained today may have uncertain future uses but preserves flexibility: adaptive reuse can become commercially viable with technological or cultural shifts. Yet developers, driven by discounted cash-flow horizons, systematically devalue option value. Public policy tools — conservation easements, tax incentives, heritage trusts — can realign incentives by compensating custodians for foregone development opportunities.
+
+Memory is contested: who is remembered and whose histories are institutionalized? Monuments and plaques can canonize particular narratives while marginalizing others. Inclusive preservation requires participatory curation: consultative processes that foreground multiple stakeholders, from marginal communities to business interests. Techniques like participatory mapping and oral history projects decentralize authority, making preservation a deliberative act rather than a top-down decree.
+
+Adaptive reuse is a pragmatic strategy: museums in former factories, co-working spaces in old warehouses and boutique hotels in refurbished townhouses all preserve fabric while supporting contemporary functions. Yet not all heritage is easily monetized: intangible cultures — crafts, street-level rituals, local dialects — resist commodification. Micro-grants, community trusts and local apprenticeships can sustain intangible practices by creating living economies around them.
+
+There are also equity considerations. Preservation policies can inadvertently accelerate gentrification if conservation leads to amenity upgrades that attract higher-income residents, displacing original communities. Policy design must therefore couple heritage protection with affordable housing provisions, rent stabilization or community land trusts to ensure that preserving memory does not yield social erasure.
+
+Measurement and monitoring present further challenges. How to quantify the social value of a ritual or the identity cohesion afforded by a neighborhood square? Mixed-method approaches — combining contingent valuation, economic impact studies and qualitative ethnography — can yield richer assessments that inform cost–benefit analysis without reducing culture to price alone.
+
+Ultimately, treating cities as living archives reframes redevelopment from erasure to conversation. When policy recognizes memory as an asset that contributes to social capital, place-making and long-term resilience, redevelopment can be both economically prudent and culturally sensitive. Achieving this synthesis requires policy innovation, community agency and a willingness to see urban change as an ongoing civic negotiation rather than a zero-sum contest between profit and preservation.`,
+    questions:[
+      {type:'mcq', question:'What does "option value" refer to in the passage?', options:['Choice between two buildings','Value of preserving possibilities for future uses','Market price of heritage','Cost of demolition'], answer:1},
+      {type:'tfng', question:'Adaptive reuse always prevents gentrification. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one policy tool that can align incentives for preservation.', answer:'conservation easements / tax incentives / heritage trusts'},
+      {type:'mcq', question:'Why is inclusive preservation important?', options:['To increase profits','To include multiple stakeholder narratives','To remove monuments','To homogenize culture'], answer:1},
+      {type:'tfng', question:'Intangible heritage is easily monetized. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Name one measure to support intangible practices.', answer:'micro-grants / apprenticeships / community trusts'},
+      {type:'mcq', question:'What risk can preservation policies create if not designed well?', options:['Improved equality','Gentrification and displacement','Lower rents','Reduced tourism'], answer:1},
+      {type:'short', question:'Give one research method suggested to assess social value.', answer:'mixed-method approaches / ethnography / contingent valuation'},
+      {type:'tfng', question:'Developers always value option value highly. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'Adaptive reuse examples include:', options:['Factories to museums','Factories to farms','Factories to mining','Factories to deserts'], answer:0},
+      {type:'short', question:'What should policy couple with heritage protection to avoid displacement?', answer:'affordable housing / rent stabilization / community land trusts'},
+      {type:'tfng', question:'Memory has only aesthetic worth. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'What is the main reframing proposed about cities?', answer:'cities as living archives / memory as asset'}
+    ]
+  },
+
+  /* ========== Passage 9: Limits of Recycling (full) ========== */
+  {
+    id:9,
+    title:"Recycling's Limits and the Case for Upstream Intervention",
+    topic:"Environmental Policy / Sustainability",
+    wordCount:960,
+    timeSuggested:26,
+    content:
+`Recycling has long been promoted as a cornerstone of sustainable practice, yet its promise is circumscribed by materials science, economics and human behavior. While recycling reduces waste to landfill and can recover secondary materials, it is by no means a panacea. A critical appraisal reveals why upstream interventions — reducing material throughput, product redesign and business-model innovation — are essential complements.
+
+Material constraints are salient. Many polymers degrade with each recycling cycle, leading to downcycling rather than true circularity. Composite products, composed of heterogeneous layers (electronics, laminates), pose separation challenges that render mechanical recycling uneconomic. Moreover, contamination in household recycling streams — food residue, mixed plastics — increases processing costs and undermines material quality. Advanced sorting and chemical recycling technologies promise improvements, but they require significant capital investment and regulatory alignment.
+
+Economics matter. The viability of recycling depends on market demand for recycled feedstocks. When virgin materials are inexpensive, recycling becomes uncompetitive unless subsidized or mandated. Extended Producer Responsibility (EPR) schemes attempt to internalize end-of-life costs by assigning producer obligations, nudging manufacturers toward reparable design. Yet EPR implementation varies widely and can be undermined by loopholes and weak enforcement.
+
+Behavioral and infrastructural factors also limit recycling. Participation rates hinge on convenience, clarity of rules and trust in the system. Complex sorting schemes depress compliance; clear, consistent curbside systems raise yields. Policy must therefore invest in user-friendly infrastructure and public communication. Otherwise, moral licensing — where consumers feel absolved by recycling and continue consumption — can blunt environmental benefits.
+
+Upstream strategies are essential. Design for disassembly, material standardization and leasing models (product-as-a-service) reduce waste generation at source. Policy instruments include procurement standards, design subsidies and fiscal measures that penalize non-repairable products. Such measures confront powerful incumbent interests and require international coordination to avoid regulatory arbitrage.
+
+In sum, honest communication about recycling’s capabilities is crucial. Framing recycling as part of a broader circular strategy — one that privileges reduction and reuse upstream — helps align public expectations with technical and economic realities. The policy portfolio must therefore be diversified: invest in better recycling where appropriate, but emphasize design changes, consumption moderation and institutional innovations that reduce the very need to recycle.`,
+    questions:[
+      {type:'mcq', question:'Which limitation is NOT mentioned as affecting recycling?', options:['Material degradation','Contamination','Lack of consumer interest','Composite product complexity'], answer:2},
+      {type:'tfng', question:'Recycling alone is sufficient to achieve circular economy goals. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one upstream policy to reduce waste generation.', answer:'design for disassembly / material standardization / leasing models'},
+      {type:'mcq', question:'EPR schemes aim to:', options:['Shift end-of-life costs to consumers','Assign producer obligations to internalize end-of-life costs','Eliminate recycling','Promote contamination'], answer:1},
+      {type:'tfng', question:'Advanced sorting always makes recycling profitable. True / False / Not Given?', answer:'Not Given'},
+      {type:'short', question:'Name one behavioral factor affecting recycling.', answer:'convenience / clarity of rules / trust'},
+      {type:'mcq', question:'Moral licensing refers to:', options:['Feeling absolved by recycling and continuing consumption','A legal term','A market failure','A design principle'], answer:0},
+      {type:'short', question:'Give one reason recycled feedstocks may be uncompetitive.', answer:'virgin material cheapness / lack of demand'},
+      {type:'tfng', question:'International coordination is unnecessary for effective recycling policy. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'The author suggests policy should prioritize:', options:['Only recycling plants','Upstream interventions and design changes','No interventions','Only consumer education'], answer:1},
+      {type:'short', question:'What is one technical challenge of composite products?', answer:'difficult separation / heterogeneity'},
+      {type:'tfng', question:'The passage says contamination has no impact on recycling. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'Give one instrument policy makers can use to encourage design change.', answer:'procurement standards / design subsidies / fiscal measures'}
+    ]
+  },
+
+  /* ========== Passage 10: Cultural Dimensions (full) ========== */
+  {
+    id:10,
+    title:"Cultural Memory, Storytelling and Civic Cohesion",
+    topic:"Cultural Studies / Public Policy",
+    wordCount:940,
+    timeSuggested:24,
+    content:
+`Stories are the connective tissue of communities: they transmit values, encode norms and provide shared references that sustain civic cohesion. In a pluralistic urban context, storytelling practices — festivals, oral histories, museum exhibitions — can anchor plural identities. Yet policy choices shape which stories are amplified and which are marginalized; thus, cultural stewardship becomes a political act with implications for democracy itself.
+
+Two mechanisms link storytelling to cohesion. First, narratives create collective frameworks for interpreting events: a shared origin myth or commemorative ritual can orient citizens toward common purposes. Second, storytelling practices scaffold empathy by foregrounding lived experience that might otherwise remain invisible. Oral histories, for instance, can humanize migration narratives and counter reductive policy discourses.
+
+State and civic institutions mediate storytelling. Public funding priorities, curricular choices and commemorative infrastructures (monuments, plaques) institutionalize particular narratives. This can be generative — sustaining traditions and enabling cultural revival — but also exclusive: institutional canonization privileges certain accounts and can marginalize dissenting voices. Deliberative cultural policy seeks to broaden participation in curatorial decisions, incorporate underrepresented narratives and create spaces for contestation and reinterpretation.
+
+Digital media introduces new dynamics. Platforms enable marginalized storytellers to reach wide audiences, but algorithmic amplification also concentrates attention and monetizes content in ways that can distort cultural transmission. Viral narratives may privilege sensation over nuance; conversely, community platforms can nourish local storytelling ecosystems that sidestep mainstream gatekeepers. Policy and civil society therefore have roles in supporting infrastructure for sustained storytelling — grants, training, local broadcasting and archiving — rather than leaving preservation entirely to market forces.
+
+There is an economic argument too: cultural heritage and storytelling contribute to place-based economies through tourism, creative industries and festivals. However, commodifying culture carries risks of inauthentic representation and exploitation. Policies that foster community control over heritage assets and equitable benefit-sharing can mitigate these pitfalls.
+
+Finally, pedagogical interventions matter. Teaching narrative literacy — the capacity to interpret, evaluate and create narratives — equips citizens to resist misinformation, engage ethically in pluralistic debate and participate in cultural production. Civic education that integrates storytelling practice with critical reflection strengthens democratic resilience.
+
+In sum, storytelling is not merely cultural ornament; it is civic infrastructure. Policies that invest in participatory curation, equitable economic arrangements and media literacy cultivate the narrative resources that sustain pluralistic, democratic societies.`,
+    questions:[
+      {type:'mcq', question:'What role do stories play according to the passage?', options:['Only entertainment','Create shared frameworks and scaffold empathy','Only tourism','Only historical record'], answer:1},
+      {type:'tfng', question:'Institutional canonization can marginalize certain voices. True / False / Not Given?', answer:'True'},
+      {type:'short', question:'Give one way digital media affects storytelling.', answer:'amplifies marginal voices / algorithmic distortion / viral sensationalism'},
+      {type:'mcq', question:'What is a risk of commodifying culture?', options:['More authenticity','Inauthentic representation and exploitation','Less tourism','No change'], answer:1},
+      {type:'tfng', question:'Teaching narrative literacy helps resist misinformation. True / False / Not Given?', answer:'True'},
+      {type:'short', question:'Name one policy to support storytelling infrastructure.', answer:'grants / training / local broadcasting / archiving'},
+      {type:'mcq', question:'Deliberative cultural policy aims to:', options:['Broaden participation in curation','Concentrate authority','Ignore underrepresented narratives','Only promote tourism'], answer:0},
+      {type:'short', question:'Give one economic benefit of storytelling.', answer:'tourism / creative industries / festivals'},
+      {type:'tfng', question:'Digital platforms always promote nuanced narratives. True / False / Not Given?', answer:'False'},
+      {type:'mcq', question:'What does narrative literacy involve?', options:['Ability to create, interpret and evaluate narratives','Only writing stories','Only publishing books','Only watching films'], answer:0},
+      {type:'short', question:'Give one example of storytelling practice mentioned.', answer:'oral histories / festivals / museum exhibitions'},
+      {type:'tfng', question:'The passage says cultural policy is irrelevant to democracy. True / False / Not Given?', answer:'False'},
+      {type:'short', question:'What should policies ensure regarding heritage assets?', answer:'community control and equitable benefit-sharing'}
+    ]
+  }
+
+]; /* end passages array */
+
+/* =============================
+   UI wiring, counters, methods (same as before)
+   ============================= */
+
+const passageSelect = document.getElementById('passageSelect');
+const pTitle = document.getElementById('pTitle');
+const pTopic = document.getElementById('pTopic');
+const pStats = document.getElementById('pStats');
+const passageContent = document.getElementById('passageContent');
+const questionsCard = document.getElementById('questionsCard');
+const questionsList = document.getElementById('questionsList');
+const scoreBox = document.getElementById('scoreBox');
+const answerKey = document.getElementById('answerKey');
+const timerDisplay = document.getElementById('timerDisplay');
+const visitsDisplay = document.getElementById('visitsDisplay');
+const passageListDiv = document.getElementById('passageList');
+
+let currentPassage = null;
+let timer = null;
+let timeLeft = 0;
+let testActive = false;
+const PASS_THRESHOLD = 0.70; // 70%+ to count as "passed"
+
+/* Populate UI and passage cards */
+function initUI(){
+  passageSelect.innerHTML = '<option value="">-- Choose a passage --</option>';
+  passageListDiv.innerHTML = '';
+  passages.forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.id}. ${p.title}`;
+    passageSelect.appendChild(opt);
+
+    const card = document.createElement('div');
+    card.className = 'passage-card';
+    card.innerHTML = `<div><div class="p-title">${p.title}</div><div class="p-meta">${p.topic} • ${p.wordCount} words</div></div>
+                      <div style="font-size:13px;color:var(--muted)">Attempts: <span id="a${p.id}">0</span> • Passed: <span id="s${p.id}">0</span>
+                      <div style="margin-top:8px"><button class="btn" onclick="loadById(${p.id})">Open</button></div></div>`;
+    passageListDiv.appendChild(card);
+
+    if(localStorage.getItem('passageAttempts_' + p.id) === null) localStorage.setItem('passageAttempts_' + p.id, '0');
+    if(localStorage.getItem('passagePasses_' + p.id) === null) localStorage.setItem('passagePasses_' + p.id, '0');
+
+    document.getElementById('a' + p.id).textContent = localStorage.getItem('passageAttempts_' + p.id);
+    document.getElementById('s' + p.id).textContent = localStorage.getItem('passagePasses_' + p.id);
+  });
+
+  let visits = Number(localStorage.getItem('siteVisits') || '0');
+  visits++;
+  localStorage.setItem('siteVisits', String(visits));
+  visitsDisplay.textContent = visits;
+}
+initUI();
+
+function loadById(id){ passageSelect.value = id; loadPassage(); }
+
+function renderPassage(p){
+  currentPassage = p;
+  pTitle.textContent = `${p.id}. ${p.title}`;
+  pTopic.textContent = `${p.topic} • ${p.wordCount} w`;
+  const attempts = Number(localStorage.getItem('passageAttempts_' + p.id) || 0);
+  const passes = Number(localStorage.getItem('passagePasses_' + p.id) || 0);
+  pStats.textContent = `Attempts: ${attempts} • Passed: ${passes}`;
+  passageContent.textContent = p.content;
+  questionsList.innerHTML = '';
+  p.questions.forEach((q, idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className = 'question';
+    qDiv.innerHTML = `<div><strong>Q${idx+1}.</strong> ${q.question}</div>`;
+    if(q.type === 'mcq'){
+      const ansDiv = document.createElement('div'); ansDiv.className = 'answers';
+      q.options.forEach((opt, oi)=>{
+        const el = document.createElement('label'); el.className = 'answer';
+        el.innerHTML = `<input type="radio" name="q${idx}" value="${oi}"> ${String.fromCharCode(65+oi)}. ${opt}`;
+        ansDiv.appendChild(el);
+      });
+      qDiv.appendChild(ansDiv);
+    } else if(q.type === 'tfng'){
+      const ansDiv = document.createElement('div'); ansDiv.className = 'answers';
+      ['True','False','Not Given'].forEach(opt=>{
+        const el = document.createElement('label'); el.className = 'answer';
+        el.innerHTML = `<input type="radio" name="q${idx}" value="${opt}"> ${opt}`;
+        ansDiv.appendChild(el);
+      });
+      qDiv.appendChild(ansDiv);
+    } else if(q.type === 'short'){
+      const ta = document.createElement('input'); ta.type = 'text'; ta.name = `q${idx}`; ta.placeholder = 'Type a short answer';
+      qDiv.appendChild(ta);
+    }
+    questionsList.appendChild(qDiv);
+  });
+  questionsCard.style.display = 'block';
+  answerKey.style.display = 'none';
+  scoreBox.innerHTML = '';
+}
+
+/* Events */
+document.getElementById('loadPassage').addEventListener('click', loadPassage);
+function loadPassage(){
+  const id = Number(passageSelect.value);
+  if(!id) return alert('Choose a passage first');
+  const p = passages.find(x=>x.id === id);
+  renderPassage(p);
+  stopTimer();
+}
+
+/* Timer */
+function formatTime(s){ const m = Math.floor(s/60).toString().padStart(2,'0'); const sec = (s%60).toString().padStart(2,'0'); return `${m}:${sec}`; }
+function startTimer(){
+  if(!currentPassage){ alert('Load a passage first'); return; }
+  const mins = Number(document.getElementById('timerMinutes').value) || currentPassage.timeSuggested || 20;
+  timeLeft = mins * 60;
+  if(timer) clearInterval(timer);
+  timer = setInterval(()=>{
+    timeLeft--; timerDisplay.textContent = 'Timer: ' + formatTime(timeLeft);
+    if(timeLeft <= 0){ clearInterval(timer); timer = null; onTimeUp(); }
+  }, 1000);
+  testActive = true;
+}
+function stopTimer(){ if(timer){ clearInterval(timer); timer=null; } timerDisplay.textContent = 'Timer: 00:00'; testActive=false; }
+document.getElementById('startTest').addEventListener('click', startTimer);
+
+function onTimeUp(){ alert('Time is up — auto-submitting answers'); submitAnswers(); }
+
+/* Submit & grade */
+document.getElementById('submitAnswers').addEventListener('click', submitAnswers);
+function submitAnswers(){
+  if(!currentPassage) return;
+  const p = currentPassage;
+  let correct = 0;
+  p.questions.forEach((q, idx)=>{
+    if(q.type === 'mcq'){
+      const sel = document.querySelector(`input[name="q${idx}"]:checked`);
+      if(sel && Number(sel.value) === q.answer) correct++;
+    } else if(q.type === 'tfng'){
+      const sel = document.querySelector(`input[name="q${idx}"]:checked`);
+      if(sel && sel.value === q.answer) correct++;
+    } else if(q.type === 'short'){
+      const el = document.querySelector(`input[name="q${idx}"]`);
+      if(el && el.value.trim().length > 0){
+        const val = el.value.trim().toLowerCase();
+        if(q.answer.toLowerCase().includes(val) || val.includes(q.answer.toLowerCase())) correct++;
+      }
+    }
+  });
+  const total = p.questions.length;
+  const percent = (correct / total) * 100;
+  const band = estimateBand(percent);
+  scoreBox.innerHTML = `<div class="result">Correct: ${correct}/${total} • ${percent.toFixed(0)}% • Estimated Band: ${band}</div>`;
+
+  let keyText = `Answer key — ${p.title}\n\n`;
+  p.questions.forEach((q, i)=> {
+    let ans = (q.type === 'mcq') ? String.fromCharCode(65 + q.answer) : q.answer;
+    keyText += `Q${i+1}: ${ans}\n`;
+  });
+  answerKey.textContent = keyText;
+  answerKey.style.display = 'block';
+
+  const attemptsKey = 'passageAttempts_' + p.id;
+  const passesKey = 'passagePasses_' + p.id;
+  let attempts = Number(localStorage.getItem(attemptsKey) || '0');
+  let passes = Number(localStorage.getItem(passesKey) || '0');
+  attempts++;
+  if((correct/total) >= PASS_THRESHOLD) passes++;
+  localStorage.setItem(attemptsKey, String(attempts));
+  localStorage.setItem(passesKey, String(passes));
+  pStats.textContent = `Attempts: ${attempts} • Passed: ${passes}`;
+  document.getElementById('a' + p.id).textContent = attempts;
+  document.getElementById('s' + p.id).textContent = passes;
+
+  stopTimer();
+}
+
+function estimateBand(percent){
+  if(percent >= 95) return '9';
+  if(percent >= 88) return '8.5';
+  if(percent >= 80) return '8';
+  if(percent >= 75) return '7.5';
+  if(percent >= 70) return '7';
+  if(percent >= 65) return '6.5';
+  if(percent >= 60) return '6';
+  if(percent >= 50) return '5.5';
+  if(percent >= 40) return '5';
+  return '4 or below';
+}
+
+document.getElementById('showAnswers').addEventListener('click', ()=>{
+  if(answerKey.style.display === 'block') answerKey.style.display = 'none';
+  else if(answerKey.textContent) answerKey.style.display = 'block';
+});
+
+document.getElementById('resetPage').addEventListener('click', ()=>{
+  if(confirm('Reset local counters (site visits) in your browser?')){
+    localStorage.clear();
+    location.reload();
+  }
+});
+
+/* Methods (same as before) */
+const methods = {
+  matchingHeadings: {
+    title: 'Matching Headings — step-by-step',
+    steps: [
+      '1) Skim each paragraph quickly to capture the main idea (do not read every line).',
+      '2) Read the list of headings and eliminate obviously mismatched ones.',
+      '3) Return to paragraphs that remain and read the first and last sentences plus topic sentences.',
+      '4) Close read (details) only when headings are similar, searching for key synonyms or arguments.',
+      '5) Decide answer: match the heading that best summarises the paragraph’s main point (not its detail).'
+    ],
+    tips: 'Focus on gist first; headings refer to overall idea rather than small details. Beware distractors that repeat words from the paragraph.'
+  },
+  tfng: {
+    title: 'T / F / NG — method',
+    steps: [
+      '1) Understand the question: identify the claim and its scope.',
+      '2) Scan the passage for keywords (names, dates, specific phrases).',
+      '3) Close reading: compare the statement with the passage sentence-by-sentence.',
+      '4) Decide: if passage explicitly supports it = TRUE; contradicts = FALSE; if passage has no information = NOT GIVEN.'
+    ],
+    tips: 'Watch for qualifiers (all, some, often) and pronouns that change meaning. "Not Given" occurs more often than students expect—don’t guess.'
+  },
+  summaryCompletion: {
+    title: 'Summary Completion — method',
+    steps: [
+      '1) Skim the paragraph/section to understand the general flow.',
+      '2) Spot anchors (dates, names) and grammatical forms required by the gap.',
+      '3) Scan for synonyms and paraphrase in the passage that fit the gap.',
+      '4) Insert words that match grammatical structure and meaning.'
+    ],
+    tips: 'Pay attention to word limits and part of speech. If a noun is required, a verb will be wrong even if factually related.'
+  },
+  matchingInfo: {
+    title: 'Matching Information — method',
+    steps: [
+      '1) Scan the list of statements/questions to pick out unique keywords.',
+      '2) For each statement, scan the passage for the keyword or its synonym.',
+      '3) Read nearby sentences carefully to verify the match; sometimes information is split across sentences.',
+      '4) Decide and mark (don’t spend too long on one item).'
+    ],
+    tips: 'Use the scan–read–decide loop; if stuck, mark and move on, return later.'
+  },
+  yesNoNotGiven: {
+    title: 'Y / NO / NG (Yes/No/Not Given) — method',
+    steps: [
+      '1) Identify who or what the statement refers to and narrow down context.',
+      '2) Scan for exact or paraphrased matches.',
+      '3) Close read the relevant sentences and judge: agree/disagree/absent.',
+      '4) Choose: Yes = agrees with writer; No = contradicts writer; Not Given = no direct evidence.'
+    ],
+    tips: 'Remember: Yes/No refer to the writer’s opinion; True/False refer to factual information.',
+  },
+  matchingNames: {
+    title: 'Matching Names — method',
+    steps: [
+      '1) Skim for the paragraph that references names or initials.',
+      '2) Scan for the unique activity or claim connected to that name.',
+      '3) Read the sentence containing the claim thoroughly.',
+      '4) Assign the name to the statement that best matches the described action or view.'
+    ],
+    tips: 'Names often appear with titles or professions—use these as anchors.'
+  },
+  shortAnswer: {
+    title: 'Short Answer Questions — method',
+    steps: [
+      '1) Read the question carefully and identify question words (what, where, when, why).',
+      '2) Scan passage for the relevant area using keywords.',
+      '3) Close read and extract a concise phrase that answers exactly what was asked.',
+      '4) Keep within the word limit and use the original form (plural/singular) required.'
+    ],
+    tips: 'Paraphrase is often needed; copying exact text can work but obey word/letter limits.'
+  },
+  matchingSentences: {
+    title: 'Matching Sentences — method',
+    steps: [
+      '1) Skim the list of sentences and note key concepts.',
+      '2) Scan the passage for synonyms and elaborations of those concepts.',
+      '3) Read closely around matches to confirm alignment.',
+      '4) Choose sentence–paragraph pairs and avoid reusing the same paragraph for multiple sentences unless allowed.'
+    ],
+    tips: 'Sentences often test nuance; focus on main idea and tone.'
+  },
+  improveSkimming: {
+    title: 'Improve Skimming — practice',
+    steps: [
+      '1) Practice by timing yourself reading a paragraph for gist in 15–20 seconds.',
+      '2) Focus on first and last sentences of paragraphs and topic sentences.',
+      '3) Build a habit of ignoring examples and details on first pass.',
+      '4) Gradually reduce time while maintaining comprehension.'
+    ],
+    tips: 'Skimming is for gist — not detail. Use it to map passage structure before detailed reading.'
+  },
+  improveScanning: {
+    title: 'Improve Scanning — practice',
+    steps: [
+      '1) Practice locating numbers, names and keywords quickly in long texts.',
+      '2) Use your peripheral vision to sweep lines and spot unusual shapes (dates, capitals).',
+      '3) Train with exercises: find 10 dates/numbers in 60 seconds.',
+      '4) Combine scanning with a quick close read once you locate the area.'
+    ],
+    tips: 'Scanning is about search, not comprehension; pair it with skimming for efficiency.'
+  },
+  improveCloseReading: {
+    title: 'Improve Close Reading — practice',
+    steps: [
+      '1) Annotate structure: underline topic sentences, circle connectors (however, therefore).',
+      '2) Paraphrase complex sentences in the margin in simpler terms.',
+      '3) Practice extracting the argument structure: claim -> evidence -> implication.',
+      '4) Do focused drills on inference questions to train reading between lines.'
+    ],
+    tips: 'Close reading is slower but necessary for detail questions and inference.'
+  },
+  improveOverall: {
+    title: 'Improving Overall Reading Skills',
+    steps: [
+      '1) Schedule regular timed practice (3–4 sessions per week).',
+      '2) Rotate question types: targeting skimming, scanning and close reading.',
+      '3) Review errors carefully: identify whether problems come from vocabulary, time pressure or misreading.',
+      '4) Build vocabulary and collocation knowledge in academic registers.'
+    ],
+    tips: 'Consistency and reflection on mistakes are the fastest route to improvement.'
+  }
+};
+
+document.querySelectorAll('.method').forEach(el=>{
+  el.addEventListener('click', ()=> {
+    const key = el.getAttribute('data-method');
+    const m = methods[key];
+    if(!m) return;
+    let html = `<div style="font-weight:700;margin-bottom:8px">${m.title}</div>`;
+    html += '<ol style="margin:0 0 8px 18px">';
+    m.steps.forEach(s => html += `<li style="margin-bottom:6px">${s}</li>`);
+    html += '</ol>';
+    html += `<div style="color:var(--muted);font-size:13px">${m.tips || ''}</div>`;
+    document.getElementById('methodContent').innerHTML = html;
+  });
+});
+
+/* keyboard shortcut */
+document.addEventListener('keydown', (e)=>{
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+    if(document.getElementById('questionsCard').style.display === 'block'){
+      submitAnswers();
+    }
+  }
+});
+</script>
+</body>
+</html>
